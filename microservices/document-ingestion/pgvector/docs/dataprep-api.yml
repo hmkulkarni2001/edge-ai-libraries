@@ -32,7 +32,7 @@ paths:
       tags:
         - Data Preparation APIs
       summary: >-
-        Upload documenst to create and store embeddings. Store documents in
+        Upload documents to create and store embeddings. Store documents in
         Object Storage.
       description: |-
         Ingest documents into the system.
@@ -111,6 +111,101 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+
+  /urls:
+    get:
+      tags:
+        - Data Preparation APIs
+      summary: Get list of URLs for which embeddings have been stored.
+      description: |-
+        Retrieve a list of all distinct URLs.
+
+        Returns:
+            List[str]: A list of document URLs.
+      operationId: get_urls_urls_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                title: Response Get URLs URLs Get
+    post:
+      tags:
+        - Data Preparation APIs
+      summary: >-
+        Upload URLs to create and store embeddings.
+      description: |-
+        Ingest documents into the system.
+
+        Args:
+            urls (list[str]): An URL or multiple URLs to be ingested.
+
+        Returns:
+            dict: A status message indicating the result of the ingestion.
+      operationId: ingest_links_urls_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body_ingest_links_urls_post'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                title: Response Ingest Links URLs Post
+        '403':
+          description: Forbidden
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Data Preparation APIs
+      summary: Delete embeddings and associated URLs from VectorDB
+      description: >-
+        Delete an URL or all URLs from storage and their embeddings 
+        from Vector DB.
+
+        Args:
+            url (str): URL to be deleted.
+
+        Returns:
+            response (dict): A status message indicating the result of the deletion.
+      operationId: delete_urls_urls_delete
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            title: URL
+        - name: delete_all
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+            title: Delete All
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     Body_ingest_document_documents_post:
@@ -126,6 +221,18 @@ components:
       required:
         - files
       title: Body_ingest_document_documents_post
+    Body_ingest_links_urls_post:
+      properties:
+        urls:
+          type: array
+          items:
+            type: string
+          title: URLs
+          description: 'A list of URLs to ingest.'
+      type: object
+      required:
+        - urls
+      title: Body_ingest_links_urls_post
     HTTPValidationError:
       properties:
         detail:
